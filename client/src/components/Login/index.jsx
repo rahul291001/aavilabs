@@ -24,7 +24,7 @@ const Login = () => {
         title: "Success!",
         text: "Sign In Successfully completed",
       }).then(() => {
-        window.location = "/main";
+        window.location = "/dashboard";
       });
     } catch (error) {
       if (error.response) {
@@ -44,8 +44,7 @@ const Login = () => {
       <div className={styles.login_form_container}>
         <div className={styles.left}>
           <form className={styles.form_container} onSubmit={handleSubmit}>
-            <h2>Welcome back to the magic</h2>
-
+            <h3 className={styles.logintext}>Welcome back to the magic</h3>
             <input
               type="email"
               placeholder="Email"
@@ -71,7 +70,7 @@ const Login = () => {
           </form>
         </div>
         <div className={styles.right}>
-          <h1>New Here ?</h1>
+          <h6 className={styles.new}>New Here ?</h6>
           <Link to="/signup">
             <button type="button" className={styles.white_btn}>
               Sing Up

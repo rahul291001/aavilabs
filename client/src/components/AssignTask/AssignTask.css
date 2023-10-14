@@ -1,0 +1,31 @@
+.assign-task-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 50px;
+}
+.row-button1 {
+  margin-left: 50px;
+  flex-direction: row;
+  display: flex;
+}
+.assign-task-text {
+  font-size: 34px;
+  color: #fff;
+  background: linear-gradient(185deg, #ffffff, #ff9595);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 20px;
+  margin-left: 250px;
+}
+.task-details-container {
+  background: linear-gradient(135deg, #ffffff, #f7f7f7);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  margin-left: 50px;
+}
+.search-inputs {
+  margin-left: 180px;
+}

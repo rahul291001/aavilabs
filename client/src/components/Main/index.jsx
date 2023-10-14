@@ -36,7 +36,7 @@ function Main() {
   const showSidebar = () => setSidebar(!sidebar);
   const handleLogout = () => {
     localStorage.removeItem("token");
-    window.location.reload();
+    window.location.reload("/");
   };
   return (
     <>
@@ -52,9 +52,9 @@ function Main() {
         <nav className={sidebar ? "nav-menu active" : "nav-menu"}>
           <ul className="nav-menu-items" onClick={showSidebar}>
             <li className="navbar-toggle">
-              <h2 className="tmc_text">TMC Tool</h2>
+              <h2 className="tmctext">TMC Tool</h2>
               <Link to="#" className="menu-bars">
-                <AiIcons.AiOutlineClose />
+                <AiIcons.AiOutlineClose className="close_menubar" />
               </Link>
             </li>
             {SidebarData.map((item, index) => {

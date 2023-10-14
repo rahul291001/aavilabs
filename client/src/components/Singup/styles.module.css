@@ -24,8 +24,8 @@
   justify-content: center;
   background: linear-gradient(
     45deg,
-    #ff4e50,
-    #fc913a
+    #1a83ff,
+    #ff6b6b
   ); /* Gradient color from pink to blue */
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
@@ -97,8 +97,8 @@
 .green_btn {
   background: linear-gradient(
     45deg,
-    #ff4e50,
-    #fc913a
+    #1a83ff,
+    #ff6b6b
   ); /* Gradient color from red to orange */
   color: white;
   border: none;
@@ -115,8 +115,16 @@
 .green_btn:hover {
   background: linear-gradient(
     45deg,
-    #fc913a,
-    #ff4e50
+    #1a83ff,
+    #ff6b6b
   ); /* Reverse the gradient colors on hover */
   transition: background 0.3s;
+}
+.welcometext {
+  color: #edf5f3;
+  font-size: 32px;
+}
+.create {
+  color: #000000;
+  font-size: 25px;
 }
