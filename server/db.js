@@ -8,7 +8,7 @@ module.exports = async () => {
 
   try {
     await mongoose.connect(
-      "mongodb+srv://admin:11301130@cluster0.ibfabjp.mongodb.net/Form?retryWrites=true&w=majority",
+      "mongodb+srv://somanath89121:Somu1234@cluster0.qimi6od.mongodb.net/taskk?retryWrites=true&w=majority",
       connectionParams
     );
     console.log("Connected to the MongoDB successfully");
