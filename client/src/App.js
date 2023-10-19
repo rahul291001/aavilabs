@@ -1,10 +1,14 @@
 import { Route, Routes, Navigate } from "react-router-dom";
-import Signup from "./components/Singup";
-import Login from "./components/Login";
+import { BrowserRouter as Router} from "react-router-dom";
+import { UserProvider } from "./components/UserContext/UserContext";
+import React, { useState, useEffect } from 'react';
+import Signup from "./components/Singup/index";
+import Login from "./components/Login/index";
 import Home from "./components/Home/Home";
-import Support from "./components/Support";
-import AssignTask from "./components/AssignTask";
-import SettingsPage from "./components/Setting_";
+import Support from "./components/Support/index";
+import AssignTask from "./components/AssignTask/index";
+import SettingsPage from "./components/Setting_/index";
+
 function App() {
   const user = localStorage.getItem("token");
 
@@ -22,4 +26,15 @@ function App() {
   );
 }
 
-export default App;
+
+
+function AppWithProvider() {
+  const [userData, setUserData] = useState(null);
+  return (
+    <UserProvider userData={userData} setUserData={setUserData}>
+      <App />
+    </UserProvider>
+  );
+}
+
+export default AppWithProvider;

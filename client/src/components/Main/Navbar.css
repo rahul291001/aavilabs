@@ -5,7 +5,9 @@
   justify-content: start;
   align-items: center;
 }
-
+h2.username{
+  align-items: right;
+}
 .menu-bars {
   margin-left: 2rem;
   font-size: 2rem;

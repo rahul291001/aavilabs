@@ -1,43 +1,80 @@
-import { useState } from "react";
-import axios from "axios";
-import { Link } from "react-router-dom";
-import styles from "./styles.module.css";
-import Swal from "sweetalert2";
-const Login = () => {
-  const [data, setData] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
+import React, { useState, useEffect } from 'react';
+import {useUser} from '../UserContext/UserContext'
+import jwt_decode from 'jwt-decode';
+import { useNavigate ,Link } from 'react-router-dom';
+import styles from './styles.module.css'
+import axios from 'axios';
 
-  const handleChange = ({ currentTarget: input }) => {
-    setData({ ...data, [input.name]: input.value });
-  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const url = "http://localhost:8080/api/auth";
-      const { data: res } = await axios.post(url, data);
-      localStorage.setItem("token", res.data);
-      setError("");
-      // Display a SweetAlert success message
-      Swal.fire({
-        icon: "success",
-        title: "Success!",
-        text: "Sign In Successfully completed",
-      }).then(() => {
-        window.location = "/dashboard";
-      });
-    } catch (error) {
-      if (error.response) {
-        setError("Sign In failed. Please check your credentials.");
-        // Display a SweetAlert error message
-        Swal.fire({
-          icon: "error",
-          title: "Error!",
-          text: "Sign In failed. Please check your credentials.",
+function Login() {
+    const navigate = useNavigate();
+    const {userData, setUserData} = useUser();
+    const [formData, setFormData] = useState({
+        email: '',
+        password: '',
+    });
+    useEffect(() => {
+        //console.log('Updated userData:', userData);
+      }, [userData]);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: value,
         });
-      }
-    }
-  };
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+          const response = await sendLoginRequest(formData);
+          if (response.status === 200) {
+            const decodedToken = jwt_decode(response.data.token);
+            const userId = decodedToken.userId;
+            const { firstname, lastname } = decodedToken;
+            console.log('decoded token:', decodedToken);
+      
+            
+            // setUserData({
+            //   userId,
+            // });
+            // console.log(userData);
+      
+            console.log(`User ${userId} ${firstname} ${lastname} logged in successfully`);
+      
+            if (userId) {
+                setUserData({ user: { userId } });
+              console.log('User ID stored in state:', userId);
+            } else {
+              console.log('User ID is not defined in the user data');
+            }
+            console.log(userData);
+      
+            localStorage.setItem('token', response.data.token);
+            //setIsLoggedIn(true);
+            const userEmail = formData.email;
+            navigate(`/dashboard?userEmail=${userEmail}`);
+          } else {
+            alert('Could not find the credentials', response.data.message);
+          }
+        } catch (error) {
+          console.log('Error:', error);
+        }
+      };
+      
+      
+  
+
+    const sendLoginRequest = async (data) => {
+        try {
+            const response = await axios.post('http://localhost:8001/auth/login', data);
+            return response;
+        } catch (error) {
+            throw error;
+            
+        }
+    };
 
   return (
     <div className={styles.login_container}>
@@ -50,7 +87,7 @@ const Login = () => {
               placeholder="Email"
               name="email"
               onChange={handleChange}
-              value={data.email}
+              value={formData.email}
               required
               className={styles.input}
             />
@@ -59,11 +96,11 @@ const Login = () => {
               placeholder="Password"
               name="password"
               onChange={handleChange}
-              value={data.password}
+              value={formData.password}
               required
               className={styles.input}
             />
-            {error && <div className={styles.error_msg}>{error}</div>}
+            
             <button type="submit" className={styles.green_btn}>
               Sing In
             </button>

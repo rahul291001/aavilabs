@@ -1,35 +1,36 @@
-import React, { useState } from "react";
-import Button from "@mui/material/Button";
+import React, { useState, useEffect } from 'react';
+import Button from '@mui/material/Button';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import '../AssignTask/AssignTask.css';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
+import Main from '../Main';
+import axios from 'axios';
 
-import Modal from "@mui/material/Modal";
-import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import "../AssignTask/AssignTask.css";
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
-
-import * as XLSX from "xlsx";
-import Main from "../Main";
 const AssignTask = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [projectId, setProjectId] = useState("");
-  const [projectName, setProjectName] = useState("");
-  const [taskDescription, setTaskDescription] = useState("");
-  const [assignee, setAssignee] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [status, setStatus] = useState("");
+  const [projectId, setProjectId] = useState('');
+  const [projectName, setProjectName] = useState('');
+  const [taskDescription, setTaskDescription] = useState('');
+  const [assignee, setAssignee] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [status, setStatus] = useState('');
   const [tasks, setTasks] = useState([]);
+  const [search, setSearch] = useState('');
 
   const handleAddTask = () => {
     setIsModalOpen(true);
@@ -39,73 +40,78 @@ const AssignTask = () => {
     setIsModalOpen(false);
   };
 
-  const handleSubmit = () => {
-    const newTask = {
-      projectId,
-      projectName,
-      taskDescription,
-      assignee,
-      startDate,
-      endDate,
-      status,
-    };
-
-    setTasks([...tasks, newTask]);
-
-    setProjectId("");
-    setProjectName("");
-    setTaskDescription("");
-    setAssignee("");
-    setStartDate("");
-    setEndDate("");
-    setStatus("");
-    handleCloseModal();
+  const createTask = async () => {
+    try {
+      const newTask = {
+        projectId,
+        projectName,
+        taskDescription,
+        assignee,
+        startDate,
+        endDate,
+        status,
+      };
+  
+      await axios.post('http://localhost:8001/task/create', newTask);
+  
+      fetchTasks(); 
+  
+      setProjectId('');
+      setProjectName('');
+      setTaskDescription('');
+      setAssignee('');
+      setStartDate('');
+      setEndDate('');
+      setStatus('');
+      handleCloseModal();
+    } catch (error) {
+      console.error('Error creating task:', error);
+    }
   };
+
+  const fetchTasks = async () => {
+    try {
+      const response = await axios.get('http://localhost:8001/task/display'); 
+      setTasks(response.data);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
   const downloadPDF = () => {
     const doc = new jsPDF();
 
-    // Set font size for the date and time
     doc.setFontSize(12);
-
-    // Add the current date and time
     const currentDateTime = new Date().toLocaleString();
     const dateText = `Date and Time: ${currentDateTime}`;
-    const headingText = "TMC Tool";
+    const headingText = 'TMC Tool';
 
-    // Calculate the width of the text to center it on the page
     const dateTextWidth = doc.getTextWidth(dateText);
     const headingTextWidth = doc.getTextWidth(headingText);
     const pageWidth = doc.internal.pageSize.getWidth();
 
-    // Calculate X-coordinate to center-align text
     const dateTextX = (pageWidth - dateTextWidth) / 2;
     const headingTextX = (pageWidth - headingTextWidth) / 2;
 
-    // Add the date and time
     doc.text(dateText, dateTextX, 10);
-
-    // Set font size for the heading
     doc.setFontSize(16);
-
-    // Add the heading "TMC Tool"
     doc.text(headingText, headingTextX, 20);
-
-    // Set font size back to 12 for the table
     doc.setFontSize(12);
-
-    // Add the table
-    autoTable(doc, { html: ".task-table" });
-
-    // Save the PDF
-    doc.save("table.pdf");
+    autoTable(doc, { html: '.task-table' });
+    doc.save('table.pdf');
   };
 
   const downloadExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(tasks);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Task List");
-    XLSX.writeFile(workbook, "task-list.xlsx");
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Task List');
+    XLSX.writeFile(workbook, 'task-list.xlsx');
   };
+
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -114,18 +120,16 @@ const AssignTask = () => {
 
     reader.onload = (e) => {
       const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: "array" });
+      const workbook = XLSX.read(data, { type: 'array' });
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const excelData = XLSX.utils.sheet_to_json(worksheet);
 
-      // Update the tasks state with the uploaded data
       setTasks(excelData);
     };
 
     reader.readAsArrayBuffer(file);
   };
 
-  const [search, setSearch] = useState("");
   const filteredTasks = tasks.filter((task) => {
     const searchValue = search.toLowerCase();
     return (
@@ -133,6 +137,7 @@ const AssignTask = () => {
       task.projectName.toLowerCase().includes(searchValue)
     );
   });
+
   return (
     <>
       <Main />
@@ -144,7 +149,7 @@ const AssignTask = () => {
               variant="contained"
               color="error"
               onClick={downloadPDF}
-              style={{ marginRight: "10px" }}
+              style={{ marginRight: '10px' }}
             >
               Download PDF
             </Button>
@@ -152,14 +157,14 @@ const AssignTask = () => {
               variant="contained"
               color="success"
               onClick={downloadExcel}
-              style={{ marginRight: "10px" }}
+              style={{ marginRight: '10px' }}
             >
-              downloadExcel
+              Download Excel
             </Button>
             <input
               type="file"
               accept=".xlsx, .xls"
-              style={{ display: "none" }}
+              style={{ display: 'none' }}
               onChange={handleFileUpload}
               id="fileInput"
             />
@@ -168,12 +173,11 @@ const AssignTask = () => {
                 variant="contained"
                 color="secondary"
                 component="span"
-                style={{ marginRight: "10px" }}
+                style={{ marginRight: '10px' }}
               >
                 Upload Excel
               </Button>
             </label>
-
             <Button
               variant="contained"
               color="primary"
@@ -192,13 +196,13 @@ const AssignTask = () => {
         >
           <Box
             sx={{
-              position: "absolute",
-              top: "45%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
+              position: 'absolute',
+              top: '45%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
               width: 350,
               height: 580,
-              bgcolor: "background.paper",
+              bgcolor: 'background.paper',
               boxShadow: 24,
               p: 5,
               borderRadius: 5,
@@ -285,10 +289,9 @@ const AssignTask = () => {
             >
               Cancel
             </Button>
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
+            <Button variant="contained" color="primary" onClick={createTask}>
               Submit
             </Button>
-                    
           </Box>
         </Modal>
         <div className="task-details-container">
@@ -299,7 +302,6 @@ const AssignTask = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-                    
           </div>
           <TableContainer>
             <Table className="task-table">
@@ -326,7 +328,6 @@ const AssignTask = () => {
                     <TableCell>{task.status}</TableCell>
                   </TableRow>
                 ))}
-                    
               </TableBody>
             </Table>
           </TableContainer>
